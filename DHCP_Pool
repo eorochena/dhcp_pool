@@ -24,14 +24,13 @@ with open('/home/eorochena/dhcpd.conf', 'r') as dhcpd_file:
 	dhcp = dhcpd_file.readlines()
 	for line, ip in enumerate(dhcp):
 		if 'subnet ' in ip:
-			temp = []
 			Subnet = ip.split()[1]
 			Netmask =  ip.split()[3]
 			Network =  ipaddress.IPv4Network(u'%s/%s' % (Subnet, Netmask))
 			subnet.append(Network)
-			temp.append(Network)
-			ip_range = Network[0], ' - ' ,Network[-1]
+			ip_range = "%s - %s" % (str(Network[0]), str(Network[-1]))
 			network_range = dhcp[line + 9].replace('range ', '').replace(';', '').replace('\n', '').strip().split(' ')
+			dhcp_range = "%s - %s" % (network_range[0], network_range[1])
 			if network_range[0].split('.')[2] == network_range[1].split('.')[2]:
 				total_servers = int(network_range[1].split('.')[3]) - int(network_range[0].split('.')[3]) + 1
 			elif network_range[0].split('.')[2] != network_range[1].split('.')[2]:
@@ -39,8 +38,9 @@ with open('/home/eorochena/dhcpd.conf', 'r') as dhcpd_file:
 				total_servers = int(network_range[1].split('.')[3]) - int(network_range[0].split('.')[3]) + 256 + difference
 			else:
 				total_servers = 'NULL'
-			subnet_range[Network] = ip_range, network_range, total_servers
-print subnet_range
+			subnet_range[Network] = "%s, %s, %s, %s" % (Netmask, ip_range, dhcp_range, total_servers)
+for key, value in subnet_range.iteritems():
+	print key, value
 		
 
 

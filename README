@@ -1,0 +1,1 @@
+Drop leases and dhcpd.conf files in the same location where the script lives

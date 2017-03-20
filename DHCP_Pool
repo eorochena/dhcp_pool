@@ -40,7 +40,7 @@ with open('/home/eorochena/dhcpd.conf', 'r') as dhcpd_file:
 					subnet_range[Network] = "%s, %s, %s, %s, %s" % (Netmask, ip_range, dhcp_range, total_servers, total_servers)
 
 if os.path.isdir(web_page_home) == False:
-	subprocess.call((mkdir %s) % web_page_home, shell = True)
+	subprocess.call(('mkdir %s') % web_page_home, shell = True)
 else:
 	pass
 

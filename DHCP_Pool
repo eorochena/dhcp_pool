@@ -102,6 +102,8 @@ html_closing = """
 	</table>
 </body>
 </html>
-"""html_page.write(html_closing)
+"""
+
+html_page.write(html_closing)
 html_page.close()
 

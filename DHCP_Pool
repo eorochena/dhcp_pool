@@ -11,10 +11,10 @@ with open('/home/eorochena/big.leases', 'r') as leases_file:
 			if "ends" in today:
 				tenant.append(leases[line - 2].replace('{', '').replace('lease', '').replace('\n', ''))
 subnet = []
-s_range = []
 subnet_range = {}
 with open('/home/eorochena/dhcpd.conf', 'r') as dhcpd_file:
 	dhcp = dhcpd_file.readlines()
+	#dhcp = list(set(badlooking_dhcp)
 	for line, ip in enumerate(dhcp):
 		if 'subnet ' in ip:
 			Subnet = ip.split()[1]
@@ -31,7 +31,7 @@ with open('/home/eorochena/dhcpd.conf', 'r') as dhcpd_file:
 				total_servers = int(network_range[1].split('.')[3]) - int(network_range[0].split('.')[3]) + 256 + difference
 			else:
 				total_servers = 'NULL'
-			for ipaddr in tenant:
+			for ipaddr in list(set(tenant)):
 				if ipaddress.ip_address(u'%s' % ipaddr.replace(' ','')) in ipaddress.ip_network(Network):
 					non_reserved = total_servers - 1
 					subnet_range[Network] = "%s, %s, %s, %s, %s" % (Netmask, ip_range, dhcp_range, total_servers, non_reserved)

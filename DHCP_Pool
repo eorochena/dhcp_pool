@@ -1,9 +1,10 @@
 #!/usr/bin/python
 
-import re, sys, ipaddress, datetime
+import ipaddress, datetime, os, subprocess
 
-
+web_page_home = '/var/www/html/DHCP_Pool'
 tenant = []
+
 with open('/home/eorochena/big.leases', 'r') as leases_file:
 	leases =  leases_file.readlines()
 	for line,today in enumerate(leases):
@@ -12,11 +13,11 @@ with open('/home/eorochena/big.leases', 'r') as leases_file:
 				tenant.append(leases[line - 2].replace('{', '').replace('lease', '').replace('\n', ''))
 subnet = []
 subnet_range = {}
+
 with open('/home/eorochena/dhcpd.conf', 'r') as dhcpd_file:
 	dhcp = dhcpd_file.readlines()
-	#dhcp = list(set(badlooking_dhcp)
 	for line, ip in enumerate(dhcp):
-		if 'subnet ' in ip:
+		if 'subnet ' in ip and 'netmask ' in ip:
 			Subnet = ip.split()[1]
 			Netmask =  ip.split()[3]
 			Network =  ipaddress.IPv4Network(u'%s/%s' % (Subnet, Netmask))
@@ -35,8 +36,72 @@ with open('/home/eorochena/dhcpd.conf', 'r') as dhcpd_file:
 				if ipaddress.ip_address(u'%s' % ipaddr.replace(' ','')) in ipaddress.ip_network(Network):
 					non_reserved = total_servers - 1
 					subnet_range[Network] = "%s, %s, %s, %s, %s" % (Netmask, ip_range, dhcp_range, total_servers, non_reserved)
-for key, value in subnet_range.iteritems():
-	print key, value
-		
+				else:
+					subnet_range[Network] = "%s, %s, %s, %s, %s" % (Netmask, ip_range, dhcp_range, total_servers, total_servers)
 
+if os.path.isdir(web_page_home) == False:
+	subprocess.call((mkdir %s) % web_page_home, shell = True)
+else:
+	pass
+
+html_page = open('%s/dhcp_pool_status.html' % web_page_home, 'w')
+	
+html_header = """
+<!DOCTYPE html>
+<html>
+<head>
+        <meta charset="utf-8">
+        <style type="text/css">
+                table {
+                        margin-left: 10px;
+                        margin-right: 10px;
+                        border: 1px solid black;
+                        border-collapse: collapse;
+                        caption-side: top;
+                }
+                th {
+                        border:2px solid white;
+                        background-color: #990134;
+                }
+                td {
+                        border: 1px solid white;
+                }
+                caption {
+                        padding-top: 10px;
+                }
+                .cellcolor {
+                        background-color: white;
+                }
+                .cellcolor:hover {
+                        background-color: #FCDFFF;
+                }
+        </style>
+        <title>GBQ - DHCP Pool Status</title>
+</head>
+<body>
+        <table>
+                <caption>
+                        <strong>GBQ - DHCP Pool Status</strong>
+                </caption>
+                <tr>
+                        <th style="color:white">Network</th>
+                        <th style="color:white">Netmask</th>
+                        <th style="color:white">Network Range</th>
+                        <th style="color:white">DHCP Pool</th>
+                        <th style="color:white">IP addresses in Network</th>
+                        <th style="color:white">DHCP Range</th>
+                </tr>
+"""
+
+html_page.write(html_header)
+
+for key, value in subnet_range.iteritems():
+	row = """<td>%s</td>""" % key, """<td>%s</td>""" % value[0], """<td>%s</td>""" % value[1], """<td>%s</td>""" % value[2], """<td>%s</td>""" % value[3], """<td>%s</td>""" % value[4]
+	html_page.write(row)
+html_closing = """
+	</table>
+</body>
+</html>
+"""html_page.write(html_closing)
+html_page.close()
 

@@ -5,7 +5,7 @@ import ipaddress, datetime, os, subprocess
 web_page_home = '/var/www/html/DHCP_Pool'
 tenant = []
 
-with open('/home/eorochena/big.leases', 'r') as leases_file:
+with open('/tmp/big.leases', 'r') as leases_file:
 	leases =  leases_file.readlines()
 	for line,today in enumerate(leases):
 		if datetime.datetime.now().strftime("%Y/%m/%d") in today and "ends" in today:
@@ -15,7 +15,7 @@ with open('/home/eorochena/big.leases', 'r') as leases_file:
 subnet = []
 subnet_range = {}
 
-with open('/home/eorochena/dhcpd.conf', 'r') as dhcpd_file:
+with open('/tmp/dhcpd.conf', 'r') as dhcpd_file:
 	dhcp = dhcpd_file.readlines()
 	for line, ip in enumerate(dhcp):
 		if 'subnet ' in ip and 'netmask ' in ip:
@@ -34,12 +34,14 @@ with open('/home/eorochena/dhcpd.conf', 'r') as dhcpd_file:
 			else:
 				total_servers = 'NULL'
 			counter = total_servers
+			used_ips = []
 			for ipaddr in list(set(tenant)):
 				if ipaddress.ip_address(u'%s' % ipaddr.replace(' ','')) in ipaddress.ip_network(Network):
 					counter -= 1
+					used_ips.append(ipaddr.replace(' ',''))
 				elif ipaddress.ip_address(u'%s' % ipaddr.replace(' ','')) not in ipaddress.ip_network(Network):
 					non_reserved = counter
-			subnet_range[Network] = "%s, %s, %s, %s, %s" % (Netmask, ip_range, dhcp_range, total_servers, non_reserved)
+			subnet_range[Network] = "%s, %s, %s, %s, %s, %s" % (Netmask, ip_range, dhcp_range, total_servers, non_reserved, used_ips)
 
 if os.path.isdir(web_page_home) == False:
 	subprocess.call(('mkdir %s') % web_page_home, shell = True)
@@ -101,7 +103,8 @@ html_header = """
                         <th style="color:white">Network Range</th>
                         <th style="color:white">DHCP Pool Range</th>
                         <th style="color:white">Total Number of IP's</th>
-                        <th style="color:white">Free IP addresses</th>
+                        <th style="color:white">Total Free IP addresses</th>
+			<th style="color:white">Used IP Addresses</th>
                 </tr>
 	</thead>
 """
@@ -123,6 +126,8 @@ for key, value in subnet_range.iteritems():
 	html_page.write(cell5)
 	cell6 = """<td><center>%s</center></td>""" % value.split(',')[4]
 	html_page.write(cell6)
+	cell7 = """<td><font-size:6>%s</font></td>""" % value.split('[')[1].replace(']','')
+	html_page.write(cell7)
 	closing_rows = """</tr>"""
 	html_page.write(closing_rows)
 html_closing = """

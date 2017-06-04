@@ -1,1 +1,3 @@
+Little Script that generates an html file that tracks the ip leases via dhcp
+
 Drop leases and dhcpd.conf files in the same location where the script lives

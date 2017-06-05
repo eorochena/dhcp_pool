@@ -8,7 +8,7 @@ import subprocess
 web_page_home = '/var/www/html/DHCP_Pool'
 tenant = []
 
-with open('/tmp/big.leases', 'r') as leases_file:
+with open('/tmp/leases', 'r') as leases_file:
     leases = leases_file.readlines()
     for line, today in enumerate(leases):
         if datetime.datetime.now().strftime("%Y/%m/%d") in today and "ends" in today:

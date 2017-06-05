@@ -48,10 +48,8 @@ with open('/tmp/dhcpd.conf', 'r') as dhcpd_file:
             subnet_range[Network] = "%s, %s, %s, %s, %s, %s" % (
                 Netmask, ip_range, dhcp_range, total_servers, non_reserved, used_ips)
 
-if os.path.isdir(web_page_home) == False:
-    subprocess.call(('mkdir %s') % web_page_home, shell=True)
-else:
-    pass
+if not os.path.isdir(web_page_home):
+    os.mkdir(web_page_home)
 
 html_page = open('%s/dhcp_pool_status.html' % web_page_home, 'w')
 

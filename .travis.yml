@@ -9,9 +9,9 @@ python:
   - "pypy"
 sudo: required
 before_install:
-  - apt-get update
-  - apt-get install apache2 apache2-doc apache2-utils -y
-  - service apache2 restart
+  - sudo apt-get update
+  - sudo apt-get install apache2 apache2-doc apache2-utils -y
+  - sudo service apache2 restart
 install:
-  - pip install -r requirements.txt
+  - sudo pip install -r requirements.txt
 script: py.test

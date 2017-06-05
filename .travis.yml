@@ -14,10 +14,8 @@ matrix:
       sudo: required
 before_install:
   - apt-get update
-  - apt-get install snmp -y
-  - apt-get install snmp-mibs-downloader -y
-  - apt-get install libsnmp-dev -y
-  - apt-get install gcc python-dev -y
+  - apt-get install apache2 apache2-doc apache2-utils -y
+  - service apache2 restart
 install:
   - pip install -r requirements.txt
 script: py.test
